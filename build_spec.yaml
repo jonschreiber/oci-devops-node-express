@@ -19,7 +19,7 @@ steps:
     name: "Export variables"
     timeoutInSeconds: 40
     command: |
-      export BUILDRUN_HASH=`echo {OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
+      export BUILDRUN_HASH=`echo ${OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
       echo "BUILDRUN_HASH: " $BUILDRUN_HASH
     onFailure:
       - type: Command
@@ -67,7 +67,7 @@ steps:
 
   - type: Command
     timeoutInSeconds: 1200
-    name: "NPM install"
+    name: "Run Tests"
     command: |
       cd ${OCI_WORKSPACE_DIR}/node_express
       npm test
