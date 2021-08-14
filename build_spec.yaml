@@ -31,11 +31,14 @@ steps:
         runAs: root
 
   - type: Command
-    timeoutInSeconds: 1200
+    timeoutInSeconds: 600
     name: "Install Prereqs"
     command: |
+      cd ${OCI_WORKSPACE_DIR}/node_express
       # install nvm
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
       nvm install lts/erbium
       echo "NODE VERSION: $(node -v)"
       echo "NPM VERSION: $(npm -v)"
@@ -49,11 +52,25 @@ steps:
         runAs: root
   
   - type: Command
-    timeoutInSeconds: 1200
+    timeoutInSeconds: 600
     name: "NPM install"
     command: |
       cd ${OCI_WORKSPACE_DIR}/node_express
       npm install
+    onFailure:
+      - type: Command
+        command: |
+          echo "Handling Failure"
+          echo "Failure successfully handled"
+        timeoutInSeconds: 40
+        runAs: root
+
+  - type: Command
+    timeoutInSeconds: 1200
+    name: "NPM install"
+    command: |
+      cd ${OCI_WORKSPACE_DIR}/node_express
+      npm test
     onFailure:
       - type: Command
         command: |
