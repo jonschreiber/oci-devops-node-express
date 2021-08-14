@@ -1,0 +1,66 @@
+version: 0.1
+component: build
+timeoutInSeconds: 6000
+runAs: root
+shell: bash
+env:
+  # these are local variables to the build config
+  variables:
+  
+  # exportedVariables are made available to use as parameters 
+  # in sucessor Build Pipeline stages
+  exportedVariables:
+    - BUILDRUN_HASH
+# For this Build to run, the Build Pipeline needs to have a build_version
+# parameter set
+
+steps:
+  - type: Command
+    name: "Export variables"
+    timeoutInSeconds: 40
+    command: |
+      export BUILDRUN_HASH=`echo {OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
+      echo "BUILDRUN_HASH: " $BUILDRUN_HASH
+    onFailure:
+      - type: Command
+        timeoutInSeconds: 40
+        command: |
+          echo "Handling Failure"
+          echo "Failure successfully handled"
+        timeoutInSeconds: 400
+        runAs: root
+
+  - type: Command
+    timeoutInSeconds: 1200
+    name: "Install Prereqs"
+    command: |
+      # install nvm
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+      nvm install lts/erbium
+      echo "NODE VERSION: $(node -v)"
+      echo "NPM VERSION: $(npm -v)"
+
+    onFailure:
+      - type: Command
+        command: |
+          echo "Handling Failure"
+          echo "Failure successfully handled"
+        timeoutInSeconds: 40
+        runAs: root
+  
+  - type: Command
+    timeoutInSeconds: 1200
+    name: "NPM install"
+    command: |
+      cd ${OCI_WORKSPACE_DIR}/node_express
+      npm install
+    onFailure:
+      - type: Command
+        command: |
+          echo "Handling Failure"
+          echo "Failure successfully handled"
+        timeoutInSeconds: 40
+        runAs: root
+
+
+outputArtifacts:
