@@ -84,7 +84,7 @@ steps:
     name: "Build container image"
     command: |
       cd ${OCI_WORKSPACE_DIR}/node_express
-      docker build --pull --rm -t node-express-getting-started -f Dockerfile .
+      docker build --pull --rm -t node-express-getting-started -f DOCKERFILE .
     onFailure:
       - type: Command
         command: |
