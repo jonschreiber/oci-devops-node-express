@@ -79,5 +79,24 @@ steps:
         timeoutInSeconds: 40
         runAs: root
 
+  - type: Command
+    timeoutInSeconds: 1200
+    name: "Build container image"
+    command: |
+      cd ${OCI_WORKSPACE_DIR}/node_express
+      docker build --pull --rm -t node-express-getting-started -f Dockerfile .
+    onFailure:
+      - type: Command
+        command: |
+          echo "Handling Failure"
+          echo "Failure successfully handled"
+        timeoutInSeconds: 40
+        runAs: root
+
 
 outputArtifacts:
+  - name: output01
+    type: DOCKER_IMAGE
+    # this location tag doesn't effect the tag used to deliver the container image
+    # to the Container Registry
+    location: node-express-getting-started:latest
