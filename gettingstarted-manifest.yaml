@@ -1,0 +1,44 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: ${namespace}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-gettingstarted-deployment
+  namespace: ${namespace}
+spec:
+  selector:
+    matchLabels:
+      app: node-gettingstarted
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: node-gettingstarted
+    spec:
+      containers:
+        - name: node-gettingstarted
+          # enter the path to your image, be sure to include the correct region prefix
+          image: iad.ocir.io/odx-pipelines/js-test/node-express-getting-started:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-gettingstarted-service
+  namespace: ${namespace}
+  annotations: 
+    service.beta.kubernetes.io/oci-load-balancer-shape: "10Mbps"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8888
+  selector:
+    app: node-gettingstarted
