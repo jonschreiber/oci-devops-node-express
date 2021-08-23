@@ -9,10 +9,11 @@ env:
   
   # exportedVariables are made available to use as parameters 
   # in sucessor Build Pipeline stages
+  # For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH
+  # parameter set
   exportedVariables:
     - BUILDRUN_HASH
-# For this Build to run, the Build Pipeline needs to have a build_version
-# parameter set
+
 
 steps:
   - type: Command
