@@ -7,10 +7,12 @@ env:
   # these are local variables to the build config
   variables:
   
-  # exportedVariables are made available to use as parameters 
-  # in sucessor Build Pipeline stages
-  # For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH
-  # parameter set
+  # the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service
+  # you can then access the value of that secret in your build_spec.yaml commands
+  vaultVariables:
+
+  # exportedVariables are made available to use as parameters in sucessor Build Pipeline stages
+  # For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH parameter set
   exportedVariables:
     - BUILDRUN_HASH
 
