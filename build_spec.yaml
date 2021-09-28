@@ -6,7 +6,7 @@ shell: bash
 env:
   # these are local variables to the build config
   variables:
-  
+    key: "value"
   # the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service
   # you can then access the value of that secret in your build_spec.yaml commands
   vaultVariables:
