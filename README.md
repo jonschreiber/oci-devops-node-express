@@ -116,17 +116,52 @@ Test out your Trigger by editing a file in this repo and pushing a change to you
 
 # Connect your Build Pipeline with a Deployment Pipeline
 
-For CI + CD: continous integration with a Build Pipeline and continuous deployment with a Deployment Pipeline, you can add a **Trigger Deployment** stage as the last step of your Build Pipeline
+For CI + CD: continous integration with a Build Pipeline and continuous deployment with a Deployment Pipeline, first create the Deployment Pipeline to deploy this example web application service to your OKE cluster. To review Deployment Pipelines, see the [example Reference Architecture](https://docs.oracle.com/en/solutions/build-pipeline-using-devops/index.html), and [docs](https://docs.oracle.com/en-us/iaas/Content/devops/using/deploy_oke.htm#deploy_to_oke). You'll need to [setup the policies](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_policy_examples.htm) to enable deployments, as well.
 
-## Trigger Deployment stage
+Because the K8s manifest doesn't change each build, we're just going to create a single version of the K8s manifest by hand (or via API/CLI), in the Artifact Registry.
+
+## Create a DevOps Environment, Artifact Registry file, and DevOps Artifact
+1. Create an [Enivornment](https://docs.oracle.com/en-us/iaas/Content/devops/using/create_oke_environment.htm) to point to your OKE cluster destination for this example. You will already need to have an OKE cluster created, or go through the [Reference Architecture automated setup](https://docs.oracle.com/en/solutions/build-pipeline-using-devops/index.html).
+
+1. Create a new, or use an existing [Artifact Registry repository]()
+1. Upload the sample k8s resources manifest to your new repository
+    1. Name this artifact: `web-app-manifest.yaml`
+    1. Specify a version, ie: `1.0`. You won't change this in the example
+    1. From your upload choice (Console, Cloud Shell, or CLI) choose the included manifest in this repo: [`gettingstarted-manifest.yaml`](gettingstarted-manifest.yaml)
+1. Now create a [DevOps Artifact](https://docs.oracle.com/en-us/iaas/Content/devops/using/artifact_registry_artifact.htm) to point to your Artifact Registry repository file
+    1. Select Type: "Kubernetes manifest" so that you can use this artifact in your Deployment pipeline stage.
+    1. Select `Artifact Registry repository` as the Artifact source
+    1. Select the Artifact Registory repository that you just created
+    1. For the Artifact location, choose `Select Existing Location` and select the file and version: `web-app-manifest.yaml:1.0` that you just uploaded above
+    1. Save!
+
+## Create your Deployment Pipeline
+
+You've created the references to your OKE cluster and manifest to deploy, now create your [Deployment Pipeline](https://docs.oracle.com/en-us/iaas/Content/devops/using/deployment_pipelines.htm)
+1. Create a new Deployment Pipeline
+1. Add your first stage - choose the type to release to OKE: `Apply manifest to your Kubernetes cluster`
+    1. Choose the Environment that you created above
+    1. For Select Artifact, select the Kubernetes manifest DevOps artifact that points to `web-app-manifest.yaml`
+    1. Add
+1. Add the pipeline parameters needed by the K8s manifest: `${namespace}`
+    1. From the Parameters tab, add new values:
+        1. Name: `namespace`
+        1. Default value: whatever you want here: `devops-sample-app`
+        1. Description: namespace value needed by the k8s manifest
+    1. Smash that "+" button
+
+To run this pipeline on its own, you can add a parameter for `BUILDRUN_HASH` or, trigger it from the Build Pipeline which will forward the `build_spec.yaml` exported variables to the Deployment Pipeline.
+
+## Add a Trigger Deployment stage to your Build Pipeline
+Once you've created your Deployment Pipeline, you can add a **Trigger Deployment** stage as the last step of your Build Pipeline.
+
 After the latest version of the container image is delivered to the Container Registry via the **Deliver Artifacts** stage, we can start a deployment to an OKE cluster
 
 1. Add stage to your Build Pipeline
 1. Choose a **Trigger Deployment** stage type
-1. Choose `Select Deployment Pipeline` to choose the Deployment Pipeline that will apply the Kubernetes Manifest: gettingstarted-manifest.yaml in this repo to your OKE cluster
+1. Choose `Select Deployment Pipeline` to choose the Deployment Pipeline that you created above.
 
 From the Deployment Pipeline you selected, you can confirm the parameters of that pipeline in the Deployment Pipeline details.
-
 
 
 # Make this your own
